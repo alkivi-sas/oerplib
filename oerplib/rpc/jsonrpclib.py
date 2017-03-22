@@ -19,8 +19,7 @@
 #
 ##############################################################################
 """Provides the :class:`Proxy` and :class:`ProxyLegacy` classes."""
-import urllib2
-import cookielib
+import urllib.request, urllib.error, urllib.parse
 import json
 import random
 
@@ -36,8 +35,8 @@ class Proxy(object):
         self._deserialize = deserialize
         self._builder = URLBuilder(self)
         cookie_jar = cookielib.CookieJar()
-        self._opener = urllib2.build_opener(
-            urllib2.HTTPCookieProcessor(cookie_jar))
+        self._opener = urllib.request.build_opener(
+            urllib.request.HTTPCookieProcessor(cookie_jar))
 
     def __getattr__(self, name):
         return getattr(self._builder, name)
@@ -52,7 +51,7 @@ class Proxy(object):
             "params": params,
             "id": random.randint(0, 1000000000),
         })
-        request = urllib2.Request(url='/'.join([self._root_url, url]))
+        request = urllib.request.Request(url='/'.join([self._root_url, url]))
         request.add_header('Content-Type', 'application/json')
         request.add_data(data)
         response = self._opener.open(request, timeout=self._timeout)

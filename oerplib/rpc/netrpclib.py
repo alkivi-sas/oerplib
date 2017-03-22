@@ -25,7 +25,7 @@ the NetRPC protocol.
 
 import socket
 import pickle
-import cStringIO
+import io
 
 
 class NetRPCError(BaseException):
@@ -86,7 +86,7 @@ class NetRPC(object):
             if chunk == '':
                 raise NetRPCError("RuntimeError", "Socket connection broken")
             msg = msg + chunk
-        msgio = cStringIO.StringIO(msg)
+        msgio = io.StringIO(msg)
         unpickler = pickle.Unpickler(msgio)
         unpickler.find_global = None
         res = unpickler.load()

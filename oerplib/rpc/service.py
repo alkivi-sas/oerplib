@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-import xmlrpclib
+import xmlrpc.client
 
 from oerplib.rpc import netrpclib, xmlrpclib_custom, error
 
@@ -41,13 +41,13 @@ class ServiceXMLRPC(object):
             #NOTE: exception raised with these kind of requests:
             #   - execute('fake.model', 'search', [])
             #   - execute('sale.order', 'fake_method')
-            except xmlrpclib.Fault as exc:
+            except xmlrpc.client.Fault as exc:
                 # faultCode: error message
                 # faultString: Server traceback (following the server version
                 # used, a bad request can produce a server traceback, or not).
                 raise error.ConnectorError(exc.faultCode, exc.faultString)
             #TODO NEED TEST (when is raised this exception?)
-            except xmlrpclib.Error as exc:
+            except xmlrpc.client.Error as exc:
                 raise error.ConnectorError(' - '.join(exc.args))
         return rpc_method
 

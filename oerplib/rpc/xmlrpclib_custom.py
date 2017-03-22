@@ -19,18 +19,18 @@
 #
 ##############################################################################
 
-import xmlrpclib
-import httplib
+import xmlrpc.client
+import http.client
 import socket
 import sys
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 # Defined later following the version of Python used
 TimeoutTransport = None  
 TimeoutSafeTransport = None
 
 
-class TimeoutServerProxy(xmlrpclib.ServerProxy):
+class TimeoutServerProxy(xmlrpc.client.ServerProxy):
     """xmlrpclib.ServerProxy overload to manage the timeout of the socket."""
     def __init__(self, *args, **kwargs):
         url = args[0]
@@ -40,7 +40,7 @@ class TimeoutServerProxy(xmlrpclib.ServerProxy):
         if 'timeout' in kwargs:
             del kwargs['timeout']
         kwargs['transport'] = t
-        xmlrpclib.ServerProxy.__init__(self, *args, **kwargs)
+        xmlrpc.client.ServerProxy.__init__(self, *args, **kwargs)
 
 
 if sys.version_info <= (2, 7):
@@ -48,17 +48,17 @@ if sys.version_info <= (2, 7):
 
     # -- xmlrpclib.Transport with timeout support --
 
-    class TimeoutHTTPPy26(httplib.HTTP):
+    class TimeoutHTTPPy26(http.client.HTTP):
         def __init__(self, host='', port=None, strict=None,
                      timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
             if port == 0:
                 port = None
             self._setup(self._connection_class(host, port, strict, timeout))
 
-    class TimeoutTransportPy26(xmlrpclib.Transport):
+    class TimeoutTransportPy26(xmlrpc.client.Transport):
         def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                      *args, **kwargs):
-            xmlrpclib.Transport.__init__(self, *args, **kwargs)
+            xmlrpc.client.Transport.__init__(self, *args, **kwargs)
             self.timeout = timeout
 
         def make_connection(self, host):
@@ -68,7 +68,7 @@ if sys.version_info <= (2, 7):
 
     # -- xmlrpclib.SafeTransport with timeout support --
 
-    class TimeoutHTTPSPy26(httplib.HTTPS):
+    class TimeoutHTTPSPy26(http.client.HTTPS):
         def __init__(self, host='', port=None, key_file=None, cert_file=None,
                      strict=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT):
             if port == 0:
@@ -78,10 +78,10 @@ if sys.version_info <= (2, 7):
             self.key_file = key_file
             self.cert_file = cert_file
 
-    class TimeoutSafeTransportPy26(xmlrpclib.SafeTransport):
+    class TimeoutSafeTransportPy26(xmlrpc.client.SafeTransport):
         def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                      *args, **kwargs):
-            xmlrpclib.Transport.__init__(self, *args, **kwargs)
+            xmlrpc.client.Transport.__init__(self, *args, **kwargs)
             self.timeout = timeout
 
         def make_connection(self, host):
@@ -97,19 +97,19 @@ else:
 
     # -- xmlrpclib.Transport with timeout support --
 
-    class TimeoutHTTPConnectionPy27(httplib.HTTPConnection):
+    class TimeoutHTTPConnectionPy27(http.client.HTTPConnection):
         def __init__(self, timeout, *args, **kwargs):
-            httplib.HTTPConnection.__init__(self, *args, **kwargs)
+            http.client.HTTPConnection.__init__(self, *args, **kwargs)
             self.timeout = timeout
 
         def connect(self):
-            httplib.HTTPConnection.connect(self)
+            http.client.HTTPConnection.connect(self)
             self.sock.settimeout(self.timeout)
 
-    class TimeoutTransportPy27(xmlrpclib.Transport):
+    class TimeoutTransportPy27(xmlrpc.client.Transport):
         def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                      *args, **kwargs):
-            xmlrpclib.Transport.__init__(self, *args, **kwargs)
+            xmlrpc.client.Transport.__init__(self, *args, **kwargs)
             self.timeout = timeout
 
         def make_connection(self, host):
@@ -123,19 +123,19 @@ else:
 
     # -- xmlrpclib.SafeTransport with timeout support --
 
-    class TimeoutHTTPSConnectionPy27(httplib.HTTPSConnection):
+    class TimeoutHTTPSConnectionPy27(http.client.HTTPSConnection):
         def __init__(self, timeout, *args, **kwargs):
-            httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+            http.client.HTTPSConnection.__init__(self, *args, **kwargs)
             self.timeout = timeout
 
         def connect(self):
-            httplib.HTTPSConnection.connect(self)
+            http.client.HTTPSConnection.connect(self)
             self.sock.settimeout(self.timeout)
 
-    class TimeoutSafeTransportPy27(xmlrpclib.SafeTransport):
+    class TimeoutSafeTransportPy27(xmlrpc.client.SafeTransport):
         def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                      *args, **kwargs):
-            xmlrpclib.SafeTransport.__init__(self, *args, **kwargs)
+            xmlrpc.client.SafeTransport.__init__(self, *args, **kwargs)
             self.timeout = timeout
 
         def make_connection(self, host):

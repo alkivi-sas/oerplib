@@ -105,10 +105,10 @@ class Model(object):
         cls_name = self._name.replace('.', '_')
         # Encode the class name for the Python2 'type()' function.
         # No need to do this for Python3.
-        if type(cls_name) == unicode and sys.version_info < (3,):
+        if type(cls_name) == str and sys.version_info < (3,):
             cls_name = cls_name.encode('utf-8')
         cls_fields = {}
-        for field_name, field_data in fields_get.items():
+        for field_name, field_data in list(fields_get.items()):
             if field_name not in Model.fields_reserved:
                 cls_fields[field_name] = fields.generate_field(
                     self, field_name, field_data)
@@ -122,7 +122,7 @@ class Model(object):
         cls.__oerp__ = self._oerp
         cls.__osv__ = {'name': self._name, 'columns': cls_fields}
         slots = ['__oerp__', '__osv__', '__dict__', '__data__']
-        slots.extend(cls_fields.keys())
+        slots.extend(list(cls_fields.keys()))
         cls.__slots__ = slots
         return cls
 
@@ -165,7 +165,7 @@ class Model(object):
         obj_data['context'] = context
         # Get basic fields (no relational ones)
         basic_fields = []
-        for field_name, field in obj.__osv__['columns'].iteritems():
+        for field_name, field in obj.__osv__['columns'].items():
             if not getattr(field, 'relation', False):
                 basic_fields.append(field_name)
             else:
@@ -192,10 +192,10 @@ class Model(object):
         else:
             if v(self._oerp.version) < v('6.1'):
                 default_get = self.default_get(
-                    obj.__osv__['columns'].keys(), context)
+                    list(obj.__osv__['columns'].keys()), context)
             else:
                 default_get = self.default_get(
-                    obj.__osv__['columns'].keys(), context=context)
+                    list(obj.__osv__['columns'].keys()), context=context)
             obj_data['raw_data'] = {}
             for field_name in obj.__osv__['columns']:
                 obj_data['raw_data'][field_name] = False
@@ -211,7 +211,7 @@ class Model(object):
         obj_data = obj.__data__
         obj_data['updated_values'] = {}
         # Load fields and their values
-        for field in self._browse_class.__osv__['columns'].values():
+        for field in list(self._browse_class.__osv__['columns'].values()):
             if field.name in obj_data['raw_data']:
                 obj_data['values'][field.name] = \
                     obj_data['raw_data'][field.name]
